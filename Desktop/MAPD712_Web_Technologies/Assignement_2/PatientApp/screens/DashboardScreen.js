@@ -1,17 +1,19 @@
 //DashboardScreen.js
 
 import React from 'react';
-import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 
 const patients = [
   { id: '1', name: 'Patient Name 1', status: 'Critical' },
   { id: '2', name: 'Patient Name 2', status: 'Stable' },
   { id: '3', name: 'Patient Name 3', status: 'Medium' },
   { id: '4', name: 'Patient Name 4', status: 'Critical' },
-  // Add more patients as necessary
 ];
 
-const DashboardScreen = ({ navigation }) => {
+const DashboardScreen = ({ route }) => {
+  const user = route?.params?.user || 'Healthworker'; 
+  const designation = route?.params?.designation || ''; 
+
   const renderPatient = ({ item }) => (
     <View style={styles.patientRow}>
       <Text style={styles.patientName}>{item.name}</Text>
@@ -21,7 +23,8 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome "Healthworker Name"</Text>
+      <Text style={styles.header}>Welcome {user}</Text>
+      <Text style={styles.designation}>{designation}</Text>
       <FlatList
         data={patients}
         renderItem={renderPatient}
@@ -40,7 +43,12 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  designation: {
+    fontSize: 18,
     marginBottom: 20,
+    color: 'gray',
   },
   patientRow: {
     flexDirection: 'row',

@@ -7,9 +7,23 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Here you can implement login logic
-    navigation.navigate('Dashboard'); // Navigate to the Dashboard screen on login
+    // Define valid credentials and their designations
+    const validUsers = {
+      Divyanshoo: { password: '1234', designation: 'Nurse' },
+      Kashish: { password: '1234', designation: 'Doctor' },
+    };
+  
+    if (validUsers[username] && validUsers[username].password === password) {
+      // If the credentials are correct, navigate to the Dashboard and pass the username and designation
+      navigation.navigate('Dashboard', { user: username, designation: validUsers[username].designation });
+    } else {
+      // Handle invalid login case (e.g., show an alert)
+      alert('Invalid username or password');
+    }
   };
+  
+  
+  
 
   const handleSignUp = () => {
     navigation.navigate('SignUp'); // Navigate to the SignUp screen
