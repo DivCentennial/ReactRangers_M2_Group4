@@ -1,10 +1,21 @@
 //LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import logo from "../assets/sencare-high-resolution-logo.png"
+import * as Font from 'expo-font';
+import {
+  useFonts,
+  Abel_400Regular,
+} from '@expo-google-fonts/abel';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+// Load the fonts
+let [fontsLoaded] = useFonts({
+  Abel_400Regular
+});
 
   const handleLogin = () => {
     // Define valid credentials and their designations
@@ -22,16 +33,18 @@ const LoginScreen = ({ navigation }) => {
     }
   };
   
-  
-  
-
   const handleSignUp = () => {
     navigation.navigate('SignUp'); // Navigate to the SignUp screen
   };
 
+
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>Sencare</Text>
+      {/* <Text style={styles.logo}>Sencare</Text> */}
+
+       {/* Replace the Text with the SVG Logo */}
+       <Image source={logo} style={styles.logo} />
+
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -47,15 +60,15 @@ const LoginScreen = ({ navigation }) => {
       />
       <Text style={styles.forgot}>Forgot Username or Password?</Text>
 
-      {/* Sign in button */}
-      <View style={styles.buttonContainer}>
-        <Button title="Sign in" onPress={handleLogin} />
-      </View>
+      {/* Sign in button using TouchableOpacity */}
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Sign in</Text>
+      </TouchableOpacity>
 
-      {/* Sign up button */}
-      <View style={styles.buttonContainer}>
-        <Button title="Sign up" onPress={handleSignUp} />
-      </View>
+      {/* Sign up button using TouchableOpacity */}
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+        <Text style={styles.buttonText}>Sign up</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -68,11 +81,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   logo: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'red',
-  },
+    width: 150,
+    height: 100,
+    borderRadius: 25, // Adjust this value for more or less rounding
+    overflow: 'hidden', // This helps to clip any overflow content
+    resizeMode: 'contain', // Maintain aspect ratio
+    marginBottom: 20
+},
+
   input: {
     width: '80%',
     padding: 10,
@@ -84,11 +100,25 @@ const styles = StyleSheet.create({
   forgot: {
     color: 'blue',
     marginVertical: 10,
+    fontFamily: 'Abel_400Regular',
   },
   buttonContainer: {
     width: '60%',
     marginTop: 20,
   },
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: '60%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontFamily: 'Abel_400Regular', // Font applied to button text
+    fontSize: 16,
+  }
 });
 
 export default LoginScreen;
