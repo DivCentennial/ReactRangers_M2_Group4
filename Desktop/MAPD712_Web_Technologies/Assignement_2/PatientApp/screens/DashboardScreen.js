@@ -59,7 +59,10 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome {user}!</Text>
+     <View style={styles.headerContainer}>
+        <Text style={styles.header}>Welcome {user}</Text>
+        <Image source={profileImage} style={styles.profileImage} />
+      </View>
       <Text style={styles.designation}>{designation}</Text>
        {/* Add Filters dropdown */}
        <View style={styles.filterContainer}>
