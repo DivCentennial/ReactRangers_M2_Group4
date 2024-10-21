@@ -1,7 +1,7 @@
 //DashboardScreen.js
 
-import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import {
   useFonts,
   Abel_400Regular
@@ -24,6 +24,18 @@ let [fontsLoaded] = useFonts({
   Abel_400Regular
 });
 
+const profileImage = user === 'Divyanshoo'
+? require('../assets/divyanshoo.jpg')
+: require('../assets/kashish.jpg'); 
+
+// State to manage the filter
+const [filter, setFilter] = useState('All');
+const [dropdownVisible, setDropdownVisible] = useState(false);
+
+ // Filter function
+ const filteredPatients = filter === 'All' ? patients : patients.filter(patient => patient.status === filter);
+
+
   const renderPatient = ({ item }) => (
     <View style={styles.patientRow}>
       <Text style={styles.patientName}>{item.name}</Text>
@@ -31,15 +43,64 @@ let [fontsLoaded] = useFonts({
     </View>
   );
 
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  const handleFilterSelect = (selectedFilter) => {
+    setFilter(selectedFilter);
+    setDropdownVisible(false); // Hide dropdown after selection
+  };
+
+  const handleAddPatient = () => {
+    // Add your patient addition logic here
+    Alert.alert("Add Patient", "Functionality to add a patient will be implemented.");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Welcome {user}!</Text>
       <Text style={styles.designation}>{designation}</Text>
+       {/* Add Filters dropdown */}
+       <View style={styles.filterContainer}>
+        <TouchableOpacity style={styles.dropdown} onPress={toggleDropdown}>
+          <Text style={styles.dropdownText}>Add Filters: {filter}</Text>
+        </TouchableOpacity>
+        {dropdownVisible && (
+          <View style={styles.dropdownMenu}>
+            <TouchableOpacity onPress={() => handleFilterSelect('All')}>
+              <Text style={styles.menuItem}>Show All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleFilterSelect('Critical')}>
+              <Text style={styles.menuItem}>Show Critical</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleFilterSelect('Stable')}>
+              <Text style={styles.menuItem}>Show Stable</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleFilterSelect('Medium')}>
+              <Text style={styles.menuItem}>Show Medium</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      {/* Column headers */}
+      <View style={styles.columnHeaders}>
+        <Text style={styles.columnHeader}>Patient Name:</Text>
+        <Text style={styles.columnHeader}>Patient Criticality:</Text>
+      </View>
+
       <FlatList
-        data={patients}
+        data={filteredPatients}
         renderItem={renderPatient}
         keyExtractor={item => item.id}
       />
+
+       {/* Add Patient Button */}
+       <TouchableOpacity style={styles.addButton} onPress={handleAddPatient}>
+        <Text style={styles.addButtonText}>Add Patient</Text>
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -50,17 +111,60 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f8f8f8',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
-    fontFamily: 'Abel_400Regular',
+    marginRight: 10,
+    fontFamily: 'Abel_400Regular'
   },
   designation: {
     fontSize: 18,
     marginBottom: 20,
     color: 'gray',
     fontFamily: 'Abel_400Regular',
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  filterContainer: {
+    marginBottom: 20, // Adds space below the filter
+  },
+  dropdown: {
+    backgroundColor: '#e0e0e0',
+    padding: 10,
+    borderRadius: 5,
+  },
+  dropdownText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dropdownMenu: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginTop: 5,
+    elevation: 2, // Adds shadow effect on Android
+  },
+  menuItem: {
+    padding: 10,
+    fontSize: 16,
+  },
+  columnHeaders: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5
+  },
+  columnHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    fontFamily: 'Abel_400Regular'
   },
   patientRow: {
     flexDirection: 'row',
@@ -86,6 +190,20 @@ const styles = StyleSheet.create({
   },
   medium: {
     color: 'orange',
+  },
+  addButton: {
+    backgroundColor: '#007BFF', // Primary color for the button
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20, // Space above the button
+    
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Abel_400Regular'
   },
 });
 
