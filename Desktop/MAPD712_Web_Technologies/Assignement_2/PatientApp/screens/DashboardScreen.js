@@ -1,6 +1,7 @@
 //DashboardScreen.js
 
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import {
   useFonts,
@@ -16,6 +17,10 @@ const patients = [
 ];
 
 const DashboardScreen = ({ route }) => {
+
+  // Adding instance of navigation
+  const navigation = useNavigation();
+
   const user = route?.params?.user || 'Healthworker'; 
   const designation = route?.params?.designation || ''; 
 
@@ -35,12 +40,18 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
  // Filter function
  const filteredPatients = filter === 'All' ? patients : patients.filter(patient => patient.status === filter);
 
+ //handle patient click
+ const handlePatientPress = (patient) => {
+  navigation.navigate('PatientDetails', { patient });
+};
 
   const renderPatient = ({ item }) => (
+    <TouchableOpacity onPress={() => handlePatientPress(item)}>
     <View style={styles.patientRow}>
       <Text style={styles.patientName}>{item.name}</Text>
       <Text style={[styles.patientStatus, styles[item.status.toLowerCase()]]}>{item.status}</Text>
     </View>
+  </TouchableOpacity>
   );
 
   const toggleDropdown = () => {
@@ -54,7 +65,9 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handleAddPatient = () => {
     // Add your patient addition logic here
-    Alert.alert("Add Patient", "Functionality to add a patient will be implemented.");
+    // Alert.alert("Add Patient", "Functionality to add a patient will be implemented.");
+
+    navigation.navigate('AddPatient');
   };
 
   return (
