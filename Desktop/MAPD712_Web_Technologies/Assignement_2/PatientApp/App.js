@@ -8,6 +8,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import AddPatientScreen from './screens/AddPatientScreen';
 import PatientDetailsScreen from './screens/PatientDetailsScreen';
+import MedicalRecordsScreen from './screens/MedicalRecordScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="AddPatient" component={AddPatientScreen} />
         <Stack.Screen name="PatientDetails" component={PatientDetailsScreen} />
+        <Stack.Screen name="MedicalRecords" component={MedicalRecordsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
