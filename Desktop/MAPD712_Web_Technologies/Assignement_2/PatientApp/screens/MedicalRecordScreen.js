@@ -6,7 +6,7 @@ import {
     useFonts,
     Abel_400Regular,
 } from '@expo-google-fonts/abel';
-const something = ""
+
 const MedicalRecordsScreen = ({ route }) => {
   // Load the fonts
   let [fontsLoaded] = useFonts({
