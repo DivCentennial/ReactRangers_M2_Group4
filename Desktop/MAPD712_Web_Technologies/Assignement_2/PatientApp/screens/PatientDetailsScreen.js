@@ -1,3 +1,5 @@
+//PatientDetailsScreen.js
+
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
@@ -30,7 +32,7 @@ const PatientDetailsScreen = ({ route }) => {
   };
 
   const handleEditDetails = () => {
-    Alert.alert('Edit Patient', 'This feature is under development.');
+    navigation.navigate('EditPatient', { patient }); // Pass the patient data
   };
 
   const handleViewMedicalRecords = () => {
@@ -55,8 +57,8 @@ const PatientDetailsScreen = ({ route }) => {
         <Text style={styles.viewRecordsButtonText}>View Medical Records</Text>
       </TouchableOpacity>
 
-      {/* Edit Details Button */}
-      <TouchableOpacity style={styles.editButton} onPress={handleEditDetails}>
+      {/* Edit Details Button -----------*/}
+      <TouchableOpacity style={styles.editButton} onPress={handleEditDetails}>  
         <Text style={styles.editButtonText}>Edit Patient Details</Text>
       </TouchableOpacity>
     </View>
