@@ -1,20 +1,21 @@
 //DashboardScreen.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import {
   useFonts,
   Abel_400Regular
 } from '@expo-google-fonts/abel';
+import axios from 'axios'; // Import Axios
 
 
-const patients = [
-  { id: '1', name: 'Patient Name 1', status: 'Critical' },
-  { id: '2', name: 'Patient Name 2', status: 'Stable' },
-  { id: '3', name: 'Patient Name 3', status: 'Medium' },
-  { id: '4', name: 'Patient Name 4', status: 'Critical' },
-];
+// const patients = [
+//   { id: '1', name: 'Patient Name 1', status: 'Critical' },
+//   { id: '2', name: 'Patient Name 2', status: 'Stable' },
+//   { id: '3', name: 'Patient Name 3', status: 'Medium' },
+//   { id: '4', name: 'Patient Name 4', status: 'Critical' },
+// ];
 
 const DashboardScreen = ({ route }) => {
 
@@ -37,22 +38,47 @@ const profileImage = user === 'Divyanshoo'
 const [filter, setFilter] = useState('All');
 const [dropdownVisible, setDropdownVisible] = useState(false);
 
+
+const [patients, setPatients] = useState([]); // Update to hold fetched patients
+
  // Filter function
  const filteredPatients = filter === 'All' ? patients : patients.filter(patient => patient.status === filter);
+
+ // State to manage patients and loading state
+ 
+ const [loading, setLoading] = useState(true); // Manage loading state
+ const [error, setError] = useState(null); // Manage error state
+
+ // Fetch patients from the API
+ useEffect(() => {
+  const fetchPatients = async () => {
+    try {
+      const response = await axios.get('https://patientdbrepo.onrender.com/api/patient/fetch');
+      setPatients(response.data); // Update patients with the fetched data
+      //console.log(response.data)
+    } catch (err) {
+      setError(err.message); // Set error message if the request fails
+    } finally {
+      setLoading(false); // Set loading to false after fetching
+    }
+  };
+  fetchPatients();
+  }, []); // Empty dependency array to run only on mount
+
 
  //handle patient click
  const handlePatientPress = (patient) => {
   navigation.navigate('PatientDetails', { patient });
 };
 
-  const renderPatient = ({ item }) => (
-    <TouchableOpacity onPress={() => handlePatientPress(item)}>
+const renderPatient = ({ item }) => (
+  <TouchableOpacity onPress={() => handlePatientPress(item)}>
     <View style={styles.patientRow}>
       <Text style={styles.patientName}>{item.name}</Text>
       <Text style={[styles.patientStatus, styles[item.status.toLowerCase()]]}>{item.status}</Text>
     </View>
   </TouchableOpacity>
-  );
+);
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
@@ -70,6 +96,14 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
     navigation.navigate('AddPatient');
   };
 
+  if (loading) {
+    return <Text>Loading...</Text>; // Show loading state while fetching data
+  }
+
+  if (error) {
+    return <Text>Error: {error}</Text>; // Show error message if fetch fails
+  }
+
   return (
     <View style={styles.container}>
      <View style={styles.headerContainer}>
@@ -77,6 +111,7 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
         <Image source={profileImage} style={styles.profileImage} />
       </View>
       <Text style={styles.designation}>{designation}</Text>
+
        {/* Add Filters dropdown */}
        <View style={styles.filterContainer}>
         <TouchableOpacity style={styles.dropdown} onPress={toggleDropdown}>
@@ -109,7 +144,7 @@ const [dropdownVisible, setDropdownVisible] = useState(false);
       <FlatList
         data={filteredPatients}
         renderItem={renderPatient}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id} // Use a unique field
       />
 
        {/* Add Patient Button */}
