@@ -1,16 +1,19 @@
 // AddPatientScreen.js
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker'; // For selecting photos
 
-const AddPatientScreen = ({ navigation }) => {
-  const [fullName, setFullName] = useState('');
-  const [patientId, setPatientId] = useState('');
+const AddPatientScreen = ({ navigation, route }) => {
+  const { user, designation } = route.params;
+
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [dateOfDischarge, setDateOfDischarge] = useState('');
   const [department, setDepartment] = useState('');
   const [gender, setGender] = useState('');
-  const [admissionDate, setAdmissionDate] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [dateOfAdmission, setAdmissionDate] = useState('');
+  const [status, setStatus] = useState('');
   const [photo, setPhoto] = useState(null); // For handling photo upload
 
 
@@ -27,29 +30,52 @@ const AddPatientScreen = ({ navigation }) => {
       allowsEditing: true,
       aspect: [1, 1], // To maintain a square aspect ratio
       quality: 1,
+      base64: true,
     });
 
     if (!pickerResult.canceled) {
         //console.log('Photo URI:', pickerResult.uri); // Debugging the photo URI
-        setPhoto(pickerResult.assets[0].uri); // Set the photo URI to state, assuming correct structure
+        setPhoto(pickerResult.assets[0].base64); // Set the photo URI to state, assuming correct structure
       }
   };
 
+//Handling form submission
+    const handleSubmit = async () => {
+      try {
+        const response = await fetch('https://patientdbrepo.onrender.com/api/patient/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            department,
+            gender,
+            dateOfAdmission,
+            dateOfDischarge,
+            age,
+            status,
+            photo, // Sending photo URI as well (you might need to handle photo differently if you want to upload it)
+          }),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.log("Error details:", errorData);
+          throw new Error('Failed to add patient');
+        }
+  
+        const result = await response.json();
+        console.log("Response:", result);
+        Alert.alert('Success', 'Patient added successfully!');
+        //navigation.goBack();
+        navigation.navigate('Dashboard', { refresh: true, user: user, designation: designation });
 
-  const handleSubmit = () => {
-    // Handle patient addition logic here (e.g., API call)
-    console.log({
-      fullName,
-      patientId,
-      department,
-      gender,
-      admissionDate,
-      dateOfBirth,
-      photo,
-    });
-    // Navigate back to the dashboard after submission
-    navigation.goBack();
-  };
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', 'Failed to add patient');
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -73,16 +99,29 @@ const AddPatientScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
+        value={name}
+        onChangeText={setName}
       />
-
-      {/* Patient ID Input */}
+      {/* Admission Date Input */}
       <TextInput
         style={styles.input}
-        placeholder="Patient ID"
-        value={patientId}
-        onChangeText={setPatientId}
+        placeholder="Admission Date"
+        value={dateOfAdmission}
+        onChangeText={setAdmissionDate}
+      />
+      {/* Date of discharge  */}
+      <TextInput
+        style={styles.input}
+        placeholder="Date of discharge"
+        value={dateOfDischarge}
+        onChangeText={setDateOfDischarge}
+      />
+        {/* Age */}
+        <TextInput
+        style={styles.input}
+        placeholder="Age"
+        value={age}
+        onChangeText={setAge}
       />
 
       {/* Department Input */}
@@ -124,20 +163,14 @@ const AddPatientScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Admission Date Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Admission Date"
-        value={admissionDate}
-        onChangeText={setAdmissionDate}
-      />
+     
 
       {/* Date of Birth Input */}
       <TextInput
         style={styles.input}
-        placeholder="Date of Birth"
-        value={dateOfBirth}
-        onChangeText={setDateOfBirth}
+        placeholder="Status"
+        value={status}
+        onChangeText={setStatus}
       />
 
        {/* Submit Button */}
