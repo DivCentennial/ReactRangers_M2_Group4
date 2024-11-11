@@ -1,27 +1,49 @@
-//EditPatientScreen.js
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
 const EditPatientScreen = ({ route, navigation }) => {
   const { patient } = route.params || {};
-
   const [name, setName] = useState(patient?.name || 'John Doe');
   const [age, setAge] = useState(patient?.age || '45');
   const [gender, setGender] = useState(patient?.gender || 'Male');
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name || !age || !gender) {
-      alert('Please fill in all fields.');
+      Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
     
     if (isNaN(age) || age <= 0) {
-      alert('Please enter a valid age.');
+      Alert.alert('Error', 'Please enter a valid age.');
       return;
     }
+    //console.log("Updating patient ID:", patient._id);
 
-    navigation.navigate('PatientDetails', { updatedPatient: { name, age, gender } });
+    try {
+      const response = await fetch(`https://patientdbrepo.onrender.com/api/patient/update/${patient._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, age, gender }),
+      });
+      //console.log("Response Status:", response.status); // Log response status
+
+      const responseData = await response.json();
+      //console.log("Response Data:", responseData); // Log response data
+
+      if (response.ok) {
+        Alert.alert('Success', 'Patient record updated successfully!');
+        navigation.navigate('PatientDetails', { updatedPatient: { ...patient, name, age, gender } });
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Update Failed', errorData.message || 'Failed to update patient record.');
+      }
+    } catch (error) {
+
+      console.error("Fetch Error:", error); // Log any fetch error
+      Alert.alert('Error', 'An error occurred while updating the patient record.');
+    }
   };
 
   return (
