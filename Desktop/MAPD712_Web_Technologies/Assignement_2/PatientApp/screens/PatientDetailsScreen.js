@@ -1,64 +1,81 @@
-//PatientDetailsScreen.js
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import {
-    useFonts,
-    Abel_400Regular,
-  } from '@expo-google-fonts/abel';
-
+import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
+import axios from 'axios';
 
 const PatientDetailsScreen = ({ route }) => {
-
- // Adding instance of navigation
   const navigation = useNavigation();
+  const [patient, setPatient] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
- // Load the fonts
- let [fontsLoaded] = useFonts({
-    Abel_400Regular
+  // Load the fonts
+  let [fontsLoaded] = useFonts({
+    Abel_400Regular,
   });
 
-  // Safely access the patient data or use default values
-  const patient = route?.params?.patient || { status: 'Unknown' };
+  // Get patientId from the route params
+  const { patientId } = route.params;
 
-  const dummyDetails = {
-    department: patient.status === 'Critical' ? 'Intensive Care Unit (ICU)' : 'General Ward',
-    gender: 'Male',  
-    admissionDate: '2024-01-01',
-    age: '45',  
-    condition: patient.status,  
-    medicalHistory: 'Diabetes, Hypertension'  
-  };
+  useEffect(() => {
+    const fetchPatientDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`https://patientdbrepo.onrender.com/api/patient/fetch/${patientId}`);
+        setPatient(response.data);
+      } catch (err) {
+        setError('Failed to load patient details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (patientId) {
+      fetchPatientDetails();
+    }
+  }, [patientId]);
 
   const handleEditDetails = () => {
-    navigation.navigate('EditPatient', { patient }); // Pass the patient data
+    navigation.navigate('EditPatient', { patient: patient });
   };
 
   const handleViewMedicalRecords = () => {
-    // Navigate to the Medical Records Screen
     navigation.navigate('MedicalRecords', { patient });
   };
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#007BFF" />;
+  }
+
+  if (error) {
+    return <Text>Error: {error}</Text>;
+  }
+
+  if (!patient) {
+    return <Text>No patient data available</Text>;
+  }
 
   return (
     <View style={styles.container}>
       {/* Patient Image */}
-      <Image source={require('../assets/24.png')} style={styles.profileImage} />
+      <Image source={patient.image ? { uri: patient.image } : require('../assets/defaultPatientImage.png')} style={styles.profileImage} />
+
 
       {/* Patient Details */}
-      <Text style={styles.detailText}>Name: John Doe</Text>
-      <Text style={styles.detailText}>ID: 12345</Text>
-      <Text style={styles.detailText}>Department: {dummyDetails.department}</Text>
-      <Text style={styles.detailText}>Gender: {dummyDetails.gender}</Text>
-      <Text style={styles.detailText}>Admission Date: {dummyDetails.admissionDate}</Text>
+      <Text style={styles.detailText}>Name: {patient.name}</Text>
+      <Text style={styles.detailText}>ID: {patient._id}</Text>
+      <Text style={styles.detailText}>Department: {patient.department || 'General Ward'}</Text>
+      <Text style={styles.detailText}>Gender: {patient.gender}</Text>
+      <Text style={styles.detailText}>Admission Date: {patient.dateOfAdmission}</Text>
 
-       {/* View Medical Records Button */}
-       <TouchableOpacity style={styles.viewRecordsButton} onPress={handleViewMedicalRecords}>
+      {/* View Medical Records Button */}
+      <TouchableOpacity style={styles.viewRecordsButton} onPress={handleViewMedicalRecords}>
         <Text style={styles.viewRecordsButtonText}>View Medical Records</Text>
       </TouchableOpacity>
 
-      {/* Edit Details Button -----------*/}
-      <TouchableOpacity style={styles.editButton} onPress={handleEditDetails}>  
+      {/* Edit Details Button */}
+      <TouchableOpacity style={styles.editButton} onPress={handleEditDetails}>
         <Text style={styles.editButtonText}>Edit Patient Details</Text>
       </TouchableOpacity>
     </View>
@@ -81,7 +98,7 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 18,
     marginBottom: 10,
-    fontFamily: 'Abel_400Regular'
+    fontFamily: 'Abel_400Regular',
   },
   viewRecordsButton: {
     backgroundColor: '#28a745',
@@ -94,7 +111,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Abel_400Regular'
+    fontFamily: 'Abel_400Regular',
   },
   editButton: {
     backgroundColor: '#007BFF',
@@ -107,7 +124,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Abel_400Regular'
+    fontFamily: 'Abel_400Regular',
   },
 });
 
