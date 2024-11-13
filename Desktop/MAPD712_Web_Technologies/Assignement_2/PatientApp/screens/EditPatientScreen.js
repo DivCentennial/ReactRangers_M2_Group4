@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 const EditPatientScreen = ({ route, navigation }) => {
   const { patient } = route.params || {};
-  const [name, setName] = useState(patient?.name || 'John Doe');
-  const [age, setAge] = useState(patient?.age || '45');
-  const [gender, setGender] = useState(patient?.gender || 'Male');
+  const previousStatus = patient.status
+  const [name, setName] = useState(patient?.name || 'Null');
+  const [age, setAge] = useState(patient?.age || 'Null');
+  const [gender, setGender] = useState(patient?.gender || 'Null');
+  const [status, setStatus] = useState(previousStatus);
 
   const handleSave = async () => {
     if (!name || !age || !gender) {
@@ -25,7 +28,7 @@ const EditPatientScreen = ({ route, navigation }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, age, gender }),
+        body: JSON.stringify({ name, age, gender, status }),
       });
       //console.log("Response Status:", response.status); // Log response status
 
@@ -56,6 +59,17 @@ const EditPatientScreen = ({ route, navigation }) => {
 
       <Text style={styles.label}>Gender:</Text>
       <TextInput style={styles.input} value={gender} onChangeText={setGender} />
+
+      <Text style={styles.label}>Status:</Text>
+      <Picker
+        selectedValue={status}
+        onValueChange={(itemValue) => setStatus(itemValue)} // Update the gender state when a new value is selected
+        style={styles.input}
+      >
+        <Picker.Item label="Stable" value="Stable" />
+        <Picker.Item label="Medium" value="Medium" />
+        <Picker.Item label="Critical" value="Critical" />
+      </Picker>
 
       <Button title="Save Changes" onPress={handleSave} />
     </View>
