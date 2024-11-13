@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const EditPatientScreen = ({ route, navigation }) => {
   const { patient } = route.params || {};
@@ -71,7 +72,9 @@ const EditPatientScreen = ({ route, navigation }) => {
         <Picker.Item label="Critical" value="Critical" />
       </Picker>
 
-      <Button title="Save Changes" onPress={handleSave} />
+      <TouchableOpacity style={styles.editButton} title="Save Changes" onPress={handleSave}>
+      <Text style={styles.editButtonText}>Save Patient Details</Text>
+        </TouchableOpacity>
     </View>
   );
 };
@@ -81,15 +84,31 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  editButton: {
+    backgroundColor: '#007BFF',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  editButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Abel_400Regular',
+  },
   label: {
     fontSize: 18,
     marginBottom: 10,
+    fontFamily: 'Abel_400Regular',
+    fontWeight: 'bold'
   },
   input: {
     borderWidth: 1,
     padding: 10,
     marginBottom: 20,
     borderRadius: 5,
+    fontFamily: 'Abel_400Regular',
   },
 });
 
