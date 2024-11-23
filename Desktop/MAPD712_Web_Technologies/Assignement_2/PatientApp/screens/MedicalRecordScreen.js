@@ -2,10 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; // For the chevron icon
 import * as DocumentPicker from 'expo-document-picker'; // To pick documents
-import {
-    useFonts,
-    Abel_400Regular,
-} from '@expo-google-fonts/abel';
+import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
 
 const MedicalRecordsScreen = ({ route }) => {
   // Load the fonts
@@ -15,45 +12,28 @@ const MedicalRecordsScreen = ({ route }) => {
 
   const { patient } = route.params;
 
-  // Separate states for each accordion
-  const [expandedECG, setExpandedECG] = useState(false);
-  const [expandedBloodTest, setExpandedBloodTest] = useState(false);
+  // Create an array of states for each accordion dynamically based on the number of medical reports
+  const [expandedReports, setExpandedReports] = useState(patient.medicalReports.map(() => false));
 
-  // Separate rotate values for each accordion
-  const rotateValueECG = useRef(new Animated.Value(0)).current;
-  const rotateValueBloodTest = useRef(new Animated.Value(0)).current;
+  // Rotate values for each accordion dynamically
+  const rotateValues = useRef(patient.medicalReports.map(() => new Animated.Value(0))).current;
 
-  // Toggle function for ECG accordion
-  const toggleAccordionECG = () => {
-    setExpandedECG(!expandedECG);
+  // Toggle function for any accordion
+  const toggleAccordion = (index) => {
+    const newExpandedReports = [...expandedReports];
+    newExpandedReports[index] = !newExpandedReports[index];
+    setExpandedReports(newExpandedReports);
 
-    // Animate the chevron for ECG
-    Animated.timing(rotateValueECG, {
-      toValue: expandedECG ? 0 : 1, // Rotate between 0 and 1 (0 to 180 degrees)
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  // Toggle function for Blood Test accordion
-  const toggleAccordionBloodTest = () => {
-    setExpandedBloodTest(!expandedBloodTest);
-
-    // Animate the chevron for Blood Test
-    Animated.timing(rotateValueBloodTest, {
-      toValue: expandedBloodTest ? 0 : 1, // Rotate between 0 and 1 (0 to 180 degrees)
+    // Animate the chevron for the clicked accordion
+    Animated.timing(rotateValues[index], {
+      toValue: newExpandedReports[index] ? 1 : 0, // Rotate between 0 and 1 (0 to 180 degrees)
       duration: 300,
       useNativeDriver: true,
     }).start();
   };
 
   // Interpolating rotation values to degrees
-  const rotateChevronECG = rotateValueECG.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
-  const rotateChevronBloodTest = rotateValueBloodTest.interpolate({
+  const rotateChevron = (index) => rotateValues[index].interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg'],
   });
@@ -81,44 +61,30 @@ const MedicalRecordsScreen = ({ route }) => {
     <View style={styles.container}>
       <Text style={styles.header}>Medical Records for {patient.name || 'John Doe'}</Text>
 
-      {/* ECG Accordion Menu */}
-      <TouchableOpacity style={styles.accordion} onPress={toggleAccordionECG}>
-        <Text style={styles.accordionTitle}>ECG</Text>
+      {/* Dynamically render the accordion items */}
+      {patient.medicalReports.map((report, index) => (
+        <View key={index}>
+          <TouchableOpacity style={styles.accordion} onPress={() => toggleAccordion(index)}>
+            <Text style={styles.accordionTitle}>{report.type}</Text>
 
-        {/* Rotating Chevron Icon for ECG */}
-        <Animated.View style={{ transform: [{ rotate: rotateChevronECG }] }}>
-          <AntDesign name="down" size={24} color="white" />
-        </Animated.View>
-      </TouchableOpacity>
-      {expandedECG && (
-        <View style={styles.accordionContent}>
-          <Text>Condition: {patient.condition || 'Critical'}</Text>
-          <Text>History: {patient.medicalHistory || 'Lorem ipsum sit dolor sit amet'}</Text>
+            {/* Rotating Chevron Icon for each report */}
+            <Animated.View style={{ transform: [{ rotate: rotateChevron(index) }] }}>
+              <AntDesign name="down" size={24} color="white" />
+            </Animated.View>
+          </TouchableOpacity>
+          {expandedReports[index] && (
+            <View style={styles.accordionContent}>
+              <Text>Date: {report.date}</Text>
+              <Text>Result: {report.result}</Text>
+            </View>
+          )}
         </View>
-      )}
-
-      {/* Blood Test Accordion Menu */}
-      <TouchableOpacity style={styles.accordion} onPress={toggleAccordionBloodTest}>
-        <Text style={styles.accordionTitle}>Blood Test</Text>
-
-        {/* Rotating Chevron Icon for Blood Test */}
-        <Animated.View style={{ transform: [{ rotate: rotateChevronBloodTest }] }}>
-          <AntDesign name="down" size={24} color="white" />
-        </Animated.View>
-      </TouchableOpacity>
-      {expandedBloodTest && (
-        <View style={styles.accordionContent}>
-          <Text>Condition: {patient.condition || 'Critical'}</Text>
-          <Text>History: {patient.medicalHistory || 'Lorem ipsum sit dolor sit amet'}</Text>
-        </View>
-      )}
+      ))}
 
       {/* Add Record Button */}
       <TouchableOpacity style={styles.addButton} onPress={handleAddRecord}>
         <Text style={styles.addButtonText}>Add Record</Text>
       </TouchableOpacity>
-
-      {/* Add more accordion items as needed */}
     </View>
   );
 };
