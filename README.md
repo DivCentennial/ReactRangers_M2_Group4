@@ -72,16 +72,20 @@ Each clinical record includes:
 ## How to Run the Project
 1. Clone the repository:
    ```bash
-   git clone [<repository-url>](https://github.com/DivCentennial/ReactRangers_M2_Group4)
+   git clone https://github.com/DivCentennial/ReactRangers_M2_Group4
    cd Desktop/MAPD712_Web_Technologies/Assignement_2/PatientApp
 
-2. Install dependencies using Yarn or npm:
+2. Install dependencies using Yarn :
 
-yarn install
-     or
+   ```bash 
+    yarn install
+ 
+
+3. Install dependencies using npm :
+
 npm install
 
-3. Run the application:
+4. Run the application:
 
 npm start -> npm run android or npm run ios or npm run web
                         or
