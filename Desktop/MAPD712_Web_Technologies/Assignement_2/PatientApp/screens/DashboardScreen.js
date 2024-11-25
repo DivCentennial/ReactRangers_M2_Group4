@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
+//import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
 import axios from 'axios';
 
 const DashboardScreen = ({ route }) => {
@@ -18,9 +18,9 @@ const DashboardScreen = ({ route }) => {
   }, [route.params]);
 
   // Load the fonts
-  let [fontsLoaded] = useFonts({
-    Abel_400Regular,
-  });
+  // let [fontsLoaded] = useFonts({
+  //   Abel_400Regular,
+  // });
 
   const profileImage = user === 'Divyanshoo'
     ? require('../assets/divyanshoo.jpg')
@@ -74,7 +74,7 @@ const DashboardScreen = ({ route }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#007BFF" />;
+    return <ActivityIndicator size="large" color="#007BFF" testID="loading-indicator" />;
   }
 
   if (error) {
