@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
+//import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
 import axios from 'axios';
 
 const PatientDetailsScreen = ({ route }) => {
@@ -11,9 +11,9 @@ const PatientDetailsScreen = ({ route }) => {
   const [error, setError] = useState(null);
 
   // Load the fonts
-  let [fontsLoaded] = useFonts({
-    Abel_400Regular,
-  });
+  // let [fontsLoaded] = useFonts({
+  //   Abel_400Regular,
+  // });
 
   // Get patientId from the route params
   const { patientId } = route.params;
@@ -45,7 +45,7 @@ const PatientDetailsScreen = ({ route }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#007BFF" />;
+    return <ActivityIndicator size="large" color="#007BFF" testID='loading-indicator'/>;
   }
 
   if (error) {
