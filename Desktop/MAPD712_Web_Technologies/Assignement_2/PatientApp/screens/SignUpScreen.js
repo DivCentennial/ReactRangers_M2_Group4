@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import {
-  useFonts,
-  Abel_400Regular,
-} from '@expo-google-fonts/abel';
+// import {
+//   useFonts,
+//   Abel_400Regular,
+// } from '@expo-google-fonts/abel';
 
 
 const SignUpScreen = ({ navigation }) => {
@@ -13,9 +13,9 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   // Load the fonts
-let [fontsLoaded] = useFonts({
-  Abel_400Regular
-});
+// let [fontsLoaded] = useFonts({
+//   Abel_400Regular
+// });
 
 
   const handleSignUp = () => {

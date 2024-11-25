@@ -3,19 +3,19 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import logo from "../assets/sencare-high-resolution-logo.png"
 import * as Font from 'expo-font';
-import {
-  useFonts,
-  Abel_400Regular,
-} from '@expo-google-fonts/abel';
+// import {
+//   useFonts,
+//   Abel_400Regular,
+// } from '@expo-google-fonts/abel';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
 // Load the fonts
-let [fontsLoaded] = useFonts({
-  Abel_400Regular
-});
+// let [fontsLoaded] = useFonts({
+//   Abel_400Regular
+// });
 
   const handleLogin = () => {
     // Define valid credentials and their designations
