@@ -2,15 +2,11 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; // For the chevron icon
 import * as DocumentPicker from 'expo-document-picker'; // To pick documents
-import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
+//import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
 
 const MedicalRecordsScreen = ({ route }) => {
-  // Load the fonts
-  let [fontsLoaded] = useFonts({
-    Abel_400Regular,
-  });
-
-  const { patient } = route.params;
+  // Fallback patient data in case the patient prop is missing
+  const { patient = { name: 'John Doe', medicalReports: [] } } = route.params || {};
 
   // Create an array of states for each accordion dynamically based on the number of medical reports
   const [expandedReports, setExpandedReports] = useState(patient.medicalReports.map(() => false));
@@ -59,27 +55,31 @@ const MedicalRecordsScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Medical Records for {patient.name || 'John Doe'}</Text>
+      <Text style={styles.header}>Medical Records for {patient.name}</Text>
 
-      {/* Dynamically render the accordion items */}
-      {patient.medicalReports.map((report, index) => (
-        <View key={index}>
-          <TouchableOpacity style={styles.accordion} onPress={() => toggleAccordion(index)}>
-            <Text style={styles.accordionTitle}>{report.type}</Text>
+      {/* Handle case when no medical reports exist */}
+      {patient.medicalReports.length === 0 ? (
+        <Text style={styles.noRecordsText}>No records found</Text>
+      ) : (
+        patient.medicalReports.map((report, index) => (
+          <View key={index}>
+            <TouchableOpacity style={styles.accordion} onPress={() => toggleAccordion(index)}>
+              <Text style={styles.accordionTitle}>{report.type}</Text>
 
-            {/* Rotating Chevron Icon for each report */}
-            <Animated.View style={{ transform: [{ rotate: rotateChevron(index) }] }}>
-              <AntDesign name="down" size={24} color="white" />
-            </Animated.View>
-          </TouchableOpacity>
-          {expandedReports[index] && (
-            <View style={styles.accordionContent}>
-              <Text>Date: {report.date}</Text>
-              <Text>Result: {report.result}</Text>
-            </View>
-          )}
-        </View>
-      ))}
+              {/* Rotating Chevron Icon for each report */}
+              <Animated.View style={{ transform: [{ rotate: rotateChevron(index) }] }}>
+                <AntDesign name="down" size={24} color="white" />
+              </Animated.View>
+            </TouchableOpacity>
+            {expandedReports[index] && (
+              <View style={styles.accordionContent}>
+                <Text>Date: {report.date}</Text>
+                <Text>Result: {report.result}</Text>
+              </View>
+            )}
+          </View>
+        ))
+      )}
 
       {/* Add Record Button */}
       <TouchableOpacity style={styles.addButton} onPress={handleAddRecord}>
@@ -99,6 +99,13 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  noRecordsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#555', // Optional, you can choose any color
+    textAlign: 'center',
+    marginTop: 20,
   },
   accordion: {
     padding: 15,
@@ -131,7 +138,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Abel_400Regular'
+    fontFamily: 'Abel_400Regular',
   },
 });
 
