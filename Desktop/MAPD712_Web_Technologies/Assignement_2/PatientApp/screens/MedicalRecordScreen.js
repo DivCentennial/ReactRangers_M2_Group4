@@ -100,6 +100,30 @@ const MedicalRecordsScreen = ({ route }) => {
     setIsModalVisible(false);
   };
 
+  const handleDeleteRecord = (index) => {
+    Alert.alert(
+      'Delete Record',
+      'Are you sure you want to delete this record?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const updatedReports = [...medicalReports];
+            updatedReports.splice(index, 1); // Remove record at the specified index
+            setMedicalReports(updatedReports); // Update state
+            setExpandedReports(updatedReports.map(() => false)); // Reset expanded state
+            rotateValues.splice(index, 1); // Remove associated rotateValue
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Medical Records for {patient.name}</Text>
@@ -120,6 +144,9 @@ const MedicalRecordsScreen = ({ route }) => {
               <View style={styles.accordionContent}>
                 <Text>Date: {report.date}</Text>
                 <Text>Result: {report.result}</Text>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteRecord(index)}>
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -178,6 +205,8 @@ const styles = StyleSheet.create({
   modalHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   input: { borderBottomWidth: 1, marginBottom: 10, padding: 5 },
   modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
+  deleteButton: { backgroundColor: '#DC3545', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 },
+  deleteButtonText: { color: 'white', fontSize: 14, fontWeight: 'bold' },
 });
 
 export default MedicalRecordsScreen;
