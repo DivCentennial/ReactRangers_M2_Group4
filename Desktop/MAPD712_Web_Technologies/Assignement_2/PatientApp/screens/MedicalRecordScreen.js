@@ -10,19 +10,19 @@ const MedicalRecordsScreen = ({ route }) => {
   const [expandedReports, setExpandedReports] = useState(medicalReports.map(() => false));
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newRecord, setNewRecord] = useState({ type: '', date: '', result: '' });
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search query
+  const [filteredReports, setFilteredReports] = useState(medicalReports); // State for filtered reports
 
   // Initialize rotateValues based on the number of medical reports.
   const rotateValues = useRef(medicalReports.map(() => new Animated.Value(0))).current;
 
-  // Load medical records for the specific patient from AsyncStorage
   const loadRecords = async () => {
     try {
-      // Use patient name or ID as the key
       const savedReports = await AsyncStorage.getItem(`medicalReports_${patient.name}`);
       if (savedReports) {
         const parsedReports = JSON.parse(savedReports);
         setMedicalReports(parsedReports);
-        // Initialize rotateValues based on the number of reports
+        setFilteredReports(parsedReports); // Initialize filtered reports
         rotateValues.length = parsedReports.length;
         parsedReports.forEach((_, index) => {
           if (rotateValues[index] === undefined) {
@@ -39,22 +39,27 @@ const MedicalRecordsScreen = ({ route }) => {
     loadRecords();
   }, []);
 
-  // Save medical reports for the specific patient to AsyncStorage
+  useEffect(() => {
+    if (medicalReports.length > 0) {
+      saveRecords();
+    }
+  }, [medicalReports]);
+
+  useEffect(() => {
+    // Filter reports based on the search query
+    const results = medicalReports.filter((report) =>
+      report.type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredReports(results);
+  }, [searchQuery, medicalReports]);
+
   const saveRecords = async () => {
     try {
-      // Save the records under the patient's name
       await AsyncStorage.setItem(`medicalReports_${patient.name}`, JSON.stringify(medicalReports));
     } catch (error) {
       console.error('Failed to save records', error);
     }
   };
-
-  useEffect(() => {
-    // Save medical reports to AsyncStorage whenever the reports are updated
-    if (medicalReports.length > 0) {
-      saveRecords();
-    }
-  }, [medicalReports]);
 
   const toggleAccordion = (index) => {
     const newExpandedReports = [...expandedReports];
@@ -72,7 +77,7 @@ const MedicalRecordsScreen = ({ route }) => {
     rotateValues[index]?.interpolate({
       inputRange: [0, 1],
       outputRange: ['0deg', '180deg'],
-    }) || '0deg'; // Handle case where rotateValues[index] might be undefined
+    }) || '0deg';
 
   const calculateCondition = () => {
     const goodResults = medicalReports.filter((report) => report.result.toLowerCase() === 'good').length;
@@ -88,14 +93,11 @@ const MedicalRecordsScreen = ({ route }) => {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
-
-    // Add the new record to the patient's medical reports
     const updatedReports = [...medicalReports, newRecord];
-    setMedicalReports(updatedReports); // Update state
-
-    // Reset form and close modal
+    setMedicalReports(updatedReports);
+    setFilteredReports(updatedReports); // Update filtered reports
     setExpandedReports([...expandedReports, false]);
-    rotateValues.push(new Animated.Value(0)); // Add new rotateValue for new record
+    rotateValues.push(new Animated.Value(0));
     setNewRecord({ type: '', date: '', result: '' });
     setIsModalVisible(false);
   };
@@ -114,10 +116,11 @@ const MedicalRecordsScreen = ({ route }) => {
           style: 'destructive',
           onPress: () => {
             const updatedReports = [...medicalReports];
-            updatedReports.splice(index, 1); // Remove record at the specified index
-            setMedicalReports(updatedReports); // Update state
-            setExpandedReports(updatedReports.map(() => false)); // Reset expanded state
-            rotateValues.splice(index, 1); // Remove associated rotateValue
+            updatedReports.splice(index, 1);
+            setMedicalReports(updatedReports);
+            setFilteredReports(updatedReports);
+            setExpandedReports(updatedReports.map(() => false));
+            rotateValues.splice(index, 1);
           },
         },
       ]
@@ -129,10 +132,17 @@ const MedicalRecordsScreen = ({ route }) => {
       <Text style={styles.header}>Medical Records for {patient.name}</Text>
       <Text style={styles.condition}>Overall Condition: {calculateCondition()}</Text>
 
-      {medicalReports.length === 0 ? (
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search Tests"
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
+      />
+
+      {filteredReports.length === 0 ? (
         <Text style={styles.noRecordsText}>No records found</Text>
       ) : (
-        medicalReports.map((report, index) => (
+        filteredReports.map((report, index) => (
           <View key={index}>
             <TouchableOpacity style={styles.accordion} onPress={() => toggleAccordion(index)}>
               <Text style={styles.accordionTitle}>{report.type}</Text>
@@ -194,6 +204,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f8f8f8' },
   header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
   condition: { fontSize: 18, color: '#007BFF', marginBottom: 20 },
+  searchBar: { borderColor: '#ccc', borderWidth: 1, borderRadius: 5, padding: 10, marginBottom: 20 },
   noRecordsText: { fontSize: 16, textAlign: 'center', marginVertical: 20 },
   accordion: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#007BFF', borderRadius: 5, marginBottom: 10 },
   accordionTitle: { color: 'white', fontSize: 16, fontWeight: 'bold' },
@@ -202,11 +213,11 @@ const styles = StyleSheet.create({
   addButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
   modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { width: '80%', padding: 20, backgroundColor: 'white', borderRadius: 10 },
-  modalHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  input: { borderBottomWidth: 1, marginBottom: 10, padding: 5 },
-  modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
-  deleteButton: { backgroundColor: '#DC3545', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 },
-  deleteButtonText: { color: 'white', fontSize: 14, fontWeight: 'bold' },
+  modalHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 20 },
+  input: { borderColor: '#ccc', borderWidth: 1, borderRadius: 5, padding: 10, marginBottom: 10 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
+  deleteButton: { backgroundColor: '#FF4D4F', padding: 10, borderRadius: 5, marginTop: 10 },
+  deleteButtonText: { color: 'white', fontWeight: 'bold' },
 });
 
 export default MedicalRecordsScreen;
