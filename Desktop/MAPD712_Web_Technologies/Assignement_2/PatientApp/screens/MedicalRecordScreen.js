@@ -35,6 +35,8 @@ const MedicalRecordsScreen = ({ route }) => {
     }
   };
 
+
+  
   useEffect(() => {
     loadRecords();
   }, []);
@@ -93,6 +95,14 @@ const MedicalRecordsScreen = ({ route }) => {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
+
+    // Validate date format (YYYY-MM-DD)
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  if (!datePattern.test(newRecord.date)) {
+    Alert.alert('Invalid Date', 'Please enter a valid date in the format YYYY-MM-DD.');
+    return;
+  }
+
     const updatedReports = [...medicalReports, newRecord];
     setMedicalReports(updatedReports);
     setFilteredReports(updatedReports); // Update filtered reports
