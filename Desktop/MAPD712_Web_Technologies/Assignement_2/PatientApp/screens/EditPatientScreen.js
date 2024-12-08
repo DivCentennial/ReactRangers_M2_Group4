@@ -63,6 +63,42 @@ const EditPatientScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleDelete = async () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this patient?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await fetch(`https://patientdbrepo.onrender.com/api/patient/delete/${patient._id}`, {
+                method: 'DELETE',
+              });
+
+              if (response.ok) {
+                Alert.alert('Success', 'Patient record deleted successfully!');
+                navigation.goBack(); // Go back to the previous screen
+              } else {
+                const responseData = await response.json();
+                Alert.alert('Delete Failed', responseData.message || 'Failed to delete patient record.');
+              }
+            } catch (error) {
+              console.error('Fetch Error:', error);
+              Alert.alert('Error', 'An error occurred while deleting the patient record.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const handleAgeBlur = () => {
     if (isNaN(age) || age <= 0) {
       Alert.alert('Error', 'Please enter a valid age.');
@@ -117,6 +153,11 @@ const EditPatientScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.editButton} onPress={handleSave}>
           <Text style={styles.editButtonText}>Save Patient Details</Text>
         </TouchableOpacity>
+
+        {/* Delete Button */}
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <Text style={styles.deleteButtonText}>Delete Patient</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -134,6 +175,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   editButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Abel_400Regular',
+  },
+  deleteButton: {
+    backgroundColor: '#FF6347',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  deleteButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
