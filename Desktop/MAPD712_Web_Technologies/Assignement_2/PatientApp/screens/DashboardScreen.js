@@ -1,9 +1,6 @@
-//DashboardScreen.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-//import { useFonts, Abel_400Regular } from '@expo-google-fonts/abel';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import axios from 'axios';
 
 const DashboardScreen = ({ route }) => {
@@ -11,30 +8,30 @@ const DashboardScreen = ({ route }) => {
   const [user, setUser] = useState(route.params?.user || 'Healthworker');
   const [designation, setDesignation] = useState(route.params?.designation || '');
 
-   // Ensure that 'user' and 'designation' update only when route params change
-   useEffect(() => {
+  // Ensure that 'user' and 'designation' update only when route params change
+  useEffect(() => {
     if (route.params?.user) setUser(route.params.user);
     if (route.params?.designation) setDesignation(route.params.designation);
   }, [route.params]);
-
-  // Load the fonts
-  // let [fontsLoaded] = useFonts({
-  //   Abel_400Regular,
-  // });
 
   const profileImage = user === 'Divyanshoo'
     ? require('../assets/divyanshoo.jpg')
     : require('../assets/kashish.jpg');
 
-  // State for patients, filter, loading, and error handling
+  // State for patients, filter, loading, error handling, and search query
   const [patients, setPatients] = useState([]);
   const [filter, setFilter] = useState('All');
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Filtered patients list
-  const filteredPatients = filter === 'All' ? patients : patients.filter(patient => patient.status === filter);
+  // Filtered patients list (both filter and search)
+  const filteredPatients = patients.filter(patient => {
+    const matchesFilter = filter === 'All' || patient.status === filter;
+    const matchesSearch = patient.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   // Fetch patients from the API
   const fetchPatients = async () => {
@@ -70,7 +67,7 @@ const DashboardScreen = ({ route }) => {
   };
 
   const handleAddPatient = () => {
-    navigation.navigate('AddPatient', {user, designation});
+    navigation.navigate('AddPatient', { user, designation });
   };
 
   if (loading) {
@@ -97,6 +94,14 @@ const DashboardScreen = ({ route }) => {
         <Image source={profileImage} style={styles.profileImage} />
       </View>
       <Text style={styles.designation}>{designation}</Text>
+
+      {/* Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search Patients"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       {/* Filter dropdown */}
       <View style={styles.filterContainer}>
@@ -158,18 +163,23 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginRight: 10,
-    fontFamily: 'Abel_400Regular',
   },
   designation: {
     fontSize: 18,
     marginBottom: 20,
     color: 'gray',
-    fontFamily: 'Abel_400Regular',
   },
   profileImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  searchBar: {
+    backgroundColor: '#e0e0e0',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    fontSize: 16,
   },
   filterContainer: {
     marginBottom: 20,
@@ -202,7 +212,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textDecorationLine: 'underline',
-    fontFamily: 'Abel_400Regular',
   },
   patientRow: {
     flexDirection: 'row',
@@ -213,12 +222,10 @@ const styles = StyleSheet.create({
   },
   patientName: {
     fontSize: 18,
-    fontFamily: 'Abel_400Regular',
   },
   patientStatus: {
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Abel_400Regular',
   },
   critical: {
     color: 'red',
@@ -240,7 +247,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Abel_400Regular',
   },
 });
 
